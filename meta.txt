@@ -1,0 +1,8 @@
+Information shown on the data sheet was collected at 5.10.2022 at 1:09:40 EST.
+Data Source: worldfootball.net, web scraping
+Information on the table represents the 2022/23 season at the collection timestamp.
+Text Encoding: UTF-8
+Height measurements are in centimeters
+Weight measurements are in kilograms
+Date Format: YYYY.MM.DD
+Language: English
