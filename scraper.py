@@ -14,19 +14,20 @@ def parseleague(league):
         teams.append(i['href'])
     return teams
 
-#gives list of all player links when given a team
+#gives list of player link, player teams when given a team
 def parseteam(team):
     players = []
     teamtext = requests.get("https://www.worldfootball.net" + team).text
     teamsoup = BeautifulSoup(teamtext, 'html.parser')
+    teamstring = teamsoup.find("div", class_ = "head").get_text().lstrip().rstrip()
     for i in teamsoup.find_all("a"):
         if "player_summary" in str(i):
-            players.append(i['href'])
+            players.append((i['href'],teamstring))
     return players
 
 # gives dictionary of player info when given a player link
-def parseplayer(player):
-    info = {"Name" : None, "Birthdate" : None, "Nation": None, "Height": None, "Weight": None, "Foot" : None, "Position" : None}
+def parseplayer(player, team):
+    info = {"Name" : None, "Team": team, "Birthdate" : None, "Nation": None, "Height": None, "Weight": None, "Foot" : None, "Position" : None}
     playertext = requests.get("https://www.worldfootball.net" + player).text
     playersoup = BeautifulSoup(playertext, 'html.parser')
     try:
@@ -70,7 +71,7 @@ def playerDataFromLeagues(leagues: List[str]):
 def playerDataFromTeam(team: List[str]):
     players = []
     for player in team:
-        players.append(parseplayer(player))
+        players.append(parseplayer(player[0], player[1]))
     return players
 
 
@@ -81,11 +82,15 @@ if __name__ == "__main__":
     ligue_1 = "https://www.worldfootball.net/players/fra-ligue-1-2022-2023/"
     serie_a = "https://www.worldfootball.net/players/ita-serie-a-2022-2023/"
     leagues = [prem,bundes,la_liga,ligue_1,serie_a]
+
+    # just doing one example with la liga
     teams = parseleague(la_liga)
     players = parseteam(teams[0])
     pl = playerDataFromTeam(players)
+    pl.extend(playerDataFromTeam(parseteam(teams[1])))
     playerdata = pd.DataFrame.from_records(pl)
-    print(playerdata)
+    playerdata.drop_duplicates(inplace=True)
+    playerdata.to_csv('players.csv')
 
     
 
